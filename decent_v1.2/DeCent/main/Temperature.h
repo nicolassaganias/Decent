@@ -1,3 +1,5 @@
+// ok
+
 #include <OneWire.h>
 OneWire ds(DS18S20_TEMPERATURE_SENSOR_PIN);  // Set temperature sensor on a digital pin
 

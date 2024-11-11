@@ -1,3 +1,6 @@
+// ok but need to add second offset
+
+
 /************************************************************
   Calibration: connect the 3 pin wire to the ESP-32 (VCC, GND and Signal)
   without connecting the sensor to the water pipe and run the program
