@@ -7,6 +7,7 @@
 #define PH_SENSOR1_PIN                     39       // set pH sensor pin
 #define PH_SENSOR2_PIN                     15       // set pH sensor pin
 
+// LAS TENGO ALREVES, LA DE LIQUID ES GAS Y VICEVERSA
 #define ELECTROVALVE1                      12
 #define ELECTROVALVE2                      13
 #define ELECTROVALVE3                      14
