@@ -88,6 +88,7 @@ void readSensorData() {
   // check alarm status
   if (phValue1 == phValue2) {
     digitalWrite(RELAY_PIN, HIGH);
+    Serial.println("PH ALARM");
   } else {
     digitalWrite(RELAY_PIN, LOW);
   }
@@ -97,11 +98,13 @@ void readSensorData() {
     if (phValue1 < 6.5 || phValue1 > 9.0) {
       valve1 = true;
       digitalWrite(ELECTROVALVE1, HIGH);
+      Serial.println("EV1 ON");
     }
   } else {
     if (millis() - last_valve1_update > ph_valve_on_time) {
       valve1 = false;
       digitalWrite(ELECTROVALVE1, LOW);
+      Serial.println("EV1 OFF");
       last_valve1_update = millis();
     }
   }
@@ -112,11 +115,13 @@ void readSensorData() {
     if (ch4_data > 95) {
       pump1 = true;
       digitalWrite(LIQUID_PUMP1, HIGH);
+      Serial.println("LIQUID_PUMP1 ON");
     }
   } else {
     if (millis() - last_pump1_update > pump1_on_time) {
       pump1 = false;
       digitalWrite(LIQUID_PUMP1, LOW);
+      Serial.println("LIQUID_PUMP1 OFF");
       last_pump1_update = millis();
     }
   }
@@ -127,11 +132,13 @@ void readSensorData() {
     if (ch4_data < 95) {
       pump2 = true;
       digitalWrite(LIQUID_PUMP2, HIGH);
+      Serial.println("LIQUID_PUMP2 ON");
     }
   } else {
     if (millis() - last_pump2_update > pump2_on_time) {
       pump2 = false;
       digitalWrite(LIQUID_PUMP2, LOW);
+      Serial.println("LIQUID_PUMP2 OFF");
       last_pump2_update = millis();
     }
   }

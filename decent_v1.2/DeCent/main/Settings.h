@@ -52,4 +52,12 @@ void pinConfiguration(){
   pinMode(LIQUID_PUMP1, OUTPUT);
   pinMode(LIQUID_PUMP2, OUTPUT);
   pinMode(RELAY_PIN, OUTPUT);
+
+    // set pins as low
+  digitalWrite(ELECTROVALVE1, LOW);
+  digitalWrite(ELECTROVALVE2, LOW);
+  digitalWrite(ELECTROVALVE3, LOW);
+  digitalWrite(LIQUID_PUMP1, LOW);
+  digitalWrite(LIQUID_PUMP2, LOW);
+  digitalWrite(RELAY_PIN, LOW);
 }
