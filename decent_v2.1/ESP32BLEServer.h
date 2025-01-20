@@ -38,15 +38,19 @@ class MyServerCallbacks : public BLEServerCallbacks {
 class ModeCharacteristicCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic* pCharacteristic) {
     std::string value = pCharacteristic->getValue();
+    Serial.print("Mode Characteristic Received: ");
+    Serial.println(value.c_str());
     if (value.length() > 0) {
       String receivedMode;
       for (int i = 0; i < value.length(); i++) {
         receivedMode += value[i];
       }
       if (receivedMode == "auto") {
-        currentMode = 0;  // auto mode
+        Serial.println("received : Auto");
+        manualMode = 0;  // auto mode
       } else if (receivedMode == "manual") {
-        currentMode = 1;  // manual mode
+        Serial.println("received : Manual");
+        manualMode = 1;  // manual mode
         digitalWrite(LIQUID_PUMP1, LOW);
         digitalWrite(LIQUID_PUMP2, LOW);
         digitalWrite(LIQUID_PUMP3, LOW);
@@ -64,13 +68,15 @@ class ModeCharacteristicCallbacks : public BLECharacteristicCallbacks {
 class PumpCharacteristicCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic* pCharacteristic) {
     std::string value = pCharacteristic->getValue();
+    Serial.print("Pump characteristic received: ");
+    Serial.println(value.c_str());
     if (value.length() > 0) {
       String command;
       for (int i = 0; i < value.length(); i++) {
         command += value[i];
       }
       // when current mode is manual
-      if (currentMode) {
+      if (manualMode) {
         Serial.println("### Manual Mode Command Received ###");
         if (command.startsWith("p1:")) {
           int pumpState = (command == "p1:1") ? HIGH : LOW;

@@ -33,8 +33,8 @@ double readCurrent() {
   voltage = getVPP();
   VRMS = (voltage / 2.0) * 0.707;  // root 2 is 0.707
   AmpsRMS = ((VRMS * 1000) / mVperAmp) + currentCalibrationOffset;
- // Serial.print("Amps: ");
- // Serial.println(AmpsRMS);
+  Serial.print("Amps: ");
+  Serial.println(AmpsRMS);
   return AmpsRMS;
 }
 
@@ -63,8 +63,8 @@ double readVoltage() {
   double sensorVoltage = rawVoltage * voltageScalingFactor;
   sensorVoltage += voltageCalibrationOffset;
 
- // Serial.print("Voltage: ");
- // Serial.println(sensorVoltage);
+  Serial.print("Voltage: ");
+  Serial.println(sensorVoltage);
   return sensorVoltage;
 }
 

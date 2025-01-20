@@ -127,12 +127,12 @@ void loop() {
 
     // check conditions while the mode is auto
     if (!currentMode) {
-     Serial.println("--- Checking the pumps status in auto mode ---");
+     //Serial.println("--- Checking the pumps status in auto mode ---");
       if (pHSensor1Data == pHSensor2Data) {
-        Serial.println("PUMP 1 : 1");
+       // Serial.println("PUMP 1 : 1");
         digitalWrite(RELAY_PIN, HIGH);
       } else {
-        Serial.println("PUMP 1 : 0");
+      //  Serial.println("PUMP 1 : 0");
         digitalWrite(RELAY_PIN, LOW);
       }
 
@@ -141,14 +141,14 @@ void loop() {
       if ((pHSensor1Data < LOWER_PH_THRESHOLD || pHSensor1Data > UPPER_PH_THRESHOLD) && !liquidPump1On) {
         liquidPump1On = true;
         liquidPump1StartTime = currentMillis;
-        Serial.println("PUMP 1 : 1");
+       // Serial.println("PUMP 1 : 1");
         digitalWrite(LIQUID_PUMP1, HIGH);
         pumpCharacteristic->setValue(String("p1:1").c_str());
         pumpCharacteristic->notify();
       }
       if (liquidPump1On && (currentMillis - liquidPump1StartTime >= LIQUID_PUMP_ON_DURATION)) {
         liquidPump1On = false;
-        Serial.println("PUMP 1 : 0");
+       // Serial.println("PUMP 1 : 0");
         digitalWrite(LIQUID_PUMP1, LOW);
         pumpCharacteristic->setValue(String("p1:0").c_str());
         pumpCharacteristic->notify();
@@ -158,7 +158,7 @@ void loop() {
       if (CH4SensorData > CH4_THRESHOLD && !liquidPump2On) {
         liquidPump2On = true;
         liquidPump2StartTime = currentMillis;
-        Serial.println("PUMP 2 : 1");
+       // Serial.println("PUMP 2 : 1");
         digitalWrite(LIQUID_PUMP2, HIGH);
         pumpCharacteristic->setValue(String("p2:1").c_str());
         pumpCharacteristic->notify();
