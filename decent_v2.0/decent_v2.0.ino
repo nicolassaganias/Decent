@@ -13,6 +13,7 @@ void setup() {
   Serial.begin(115200);
   setPinsMode();
   O2Init();        // initialize the oxygen sensor
+  INA219Init();
   CO2Sens1Init();  // initialize the CO2 sensor 1
   CO2Sens2Init();  // initialize the CO2 sensor 2
   phInit();        // initialize the pH sensor
@@ -20,6 +21,7 @@ void setup() {
   delay(2000);
   BLEServerInit();  // BLE server initialize
   delay(1000);
+  
   // CH4 sensor calibration
   // CH4Calibration(CMD_ZERO_ADJUSTMENT);
   // CH4Calibration(CMD_ZERO_POINT);
@@ -48,8 +50,7 @@ void loop() {
     TempSensorData = readTemp();
     WPSensor1Data = readWP1();
     WPSensor2Data = readWP2();
-    measuredCurrent = readCurrent();
-    measuredVoltage = readVoltage();
+    readINA219(measuredCurrent, measuredVoltage);
 
     // check if the mobile app is connected or not
     if (deviceConnected) {

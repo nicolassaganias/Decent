@@ -37,7 +37,7 @@ class MyServerCallbacks : public BLEServerCallbacks {
 // Callback function for handling mode
 class ModeCharacteristicCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic* pCharacteristic) {
-    String value = pCharacteristic->getValue();
+    std::string value = pCharacteristic->getValue();
     if (value.length() > 0) {
       String receivedMode;
       for (int i = 0; i < value.length(); i++) {
@@ -63,7 +63,7 @@ class ModeCharacteristicCallbacks : public BLECharacteristicCallbacks {
 // Callback function for handling pump
 class PumpCharacteristicCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic* pCharacteristic) {
-    String value = pCharacteristic->getValue();
+    std::string value = pCharacteristic->getValue();
     if (value.length() > 0) {
       String command;
       for (int i = 0; i < value.length(); i++) {

@@ -1,85 +1,44 @@
-// current and voltage sensor calibration offset variable
-double currentCalibrationOffset = 0.0;
-double voltageCalibrationOffset = 0.0;
-double voltageScalingFactor = 11.0;
+#include <Wire.h>
+#include <Adafruit_INA219.h>
 
-// current sensor
-int mVperAmp = 185;  // 5A version of the ACS712 (use 100 for 20A Module, 66 for 30A Module)
-double voltage = 0;
-double VRMS = 0;
-double AmpsRMS = 0;
+TwoWire I2C_INA219 = TwoWire(1);  // Custom I2C bus for INA219
 
-float getVPP() {
-  float result;
-  int readValue;
-  int maxValue = 0;
-  int minValue = 4096;
+Adafruit_INA219 ina219(0x40); // Initialize INA219 with default address
 
-  uint32_t start_time = millis();
-  while ((millis() - start_time) < 1000) {
-    readValue = analogRead(CURRENT_SENSOR_PIN);
-    if (readValue > maxValue) {
-      maxValue = readValue;
+void INA219Init() {
+
+      // Initialize INA219 (Custom Pins: SDA=17, SCL=32)
+    I2C_INA219.begin(17, 32, 100000);  
+    if (!ina219.begin(&I2C_INA219)) {
+        Serial.println("Failed to find INA219!");
+        while (1);
     }
-    if (readValue < minValue) {
-      minValue = readValue;
-    }
-  }
-  result = ((maxValue - minValue) * 3.3) / 4096.0;
-  return result;
+    Serial.println("INA219 Initialized!");
+  // To use a slightly lower 32V, 1A range (higher precision on amps):
+  //ina219.setCalibration_32V_1A();
+  // Or to use a lower 16V, 400mA range (higher precision on volts and amps):
+  //ina219.setCalibration_16V_400mA();
 }
 
-double readCurrent() {
-  voltage = getVPP();
-  VRMS = (voltage / 2.0) * 0.707;  // root 2 is 0.707
-  AmpsRMS = ((VRMS * 1000) / mVperAmp) + currentCalibrationOffset;
-  Serial.print("Amps: ");
-  Serial.println(AmpsRMS);
-  return AmpsRMS;
-}
+float readINA219(float &current, float &voltage) {
+  float totalCurrent = 0;
+  float totalVoltage = 0;
+  float shuntvoltage = 0;
+  float busvoltage = 0;
+  float current_mA = 0;
 
-void calibrateCurrentSensor() {
-  Serial.println("Starting current sensor calibration...");
-  double noLoadCurrent = 0.0;
-
+  // Take 10 samples
   for (int i = 0; i < 10; i++) {
-    noLoadCurrent += readCurrent();
-    delay(500);
-  }
-  noLoadCurrent /= 10.0;
-  if (noLoadCurrent > 0) {
-    currentCalibrationOffset -= noLoadCurrent;
-  } else if (noLoadCurrent < 0) {
-    currentCalibrationOffset -= noLoadCurrent;
-  }
+    shuntvoltage = ina219.getShuntVoltage_mV();
+    busvoltage = ina219.getBusVoltage_V();
+    current_mA = ina219.getCurrent_mA();
 
-  Serial.print("Current sensor calibration complete. Offset: ");
-  Serial.println(currentCalibrationOffset);
-}
-
-double readVoltage() {
-  int rawValue = analogRead(VOLTAGE_SENSOR_PIN);
-  double rawVoltage = (rawValue * 3.3) / 4096.0;
-  double sensorVoltage = rawVoltage * voltageScalingFactor;
-  sensorVoltage += voltageCalibrationOffset;
-
-  Serial.print("Voltage: ");
-  Serial.println(sensorVoltage);
-  return sensorVoltage;
-}
-
-void calibrateVoltageSensor() {
-  Serial.println("Starting voltage sensor calibration...");
-  double actualVoltage = 0.0;
-  double measuredVoltage = 0.0;
-
-  for (int i = 0; i < 10; i++) {
-    measuredVoltage += readVoltage();
-    delay(500);
+    totalVoltage += busvoltage + (shuntvoltage * 0.001);
+    totalCurrent += current_mA * 0.001;
+    delay(100);  // Wait for 100ms between samples
   }
 
-  measuredVoltage /= 10.0;
-  voltageCalibrationOffset = actualVoltage - measuredVoltage;
-  Serial.print("Voltage sensor calibration complete. Offset: ");
-  Serial.println(voltageCalibrationOffset);
+  // Calculate averages
+  voltage = totalVoltage / 10;
+  current = totalCurrent / 10;
 }
