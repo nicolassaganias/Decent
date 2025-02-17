@@ -105,17 +105,17 @@ class PumpCharacteristicCallbacks : public BLECharacteristicCallbacks {
 };
 
 
-// class SensorCallbacks : public BLECharacteristicCallbacks {
-//   void onWrite(BLECharacteristic* pCharacteristic) {
-//     std::string value = pCharacteristic->getValue();
-//     String sensorData = "";
-//     if (value.length() > 0) {
-//       for (int i = 0; i < value.length(); i++) {
-//         sensorData += value[i];
-//       }
-//     }
-//   }
-// };
+class SensorCallbacks : public BLECharacteristicCallbacks {
+  void onWrite(BLECharacteristic* pCharacteristic) {
+    std::string value = pCharacteristic->getValue();
+    String sensorData = "";
+    if (value.length() > 0) {
+      for (int i = 0; i < value.length(); i++) {
+        sensorData += value[i];
+      }
+    }
+  }
+};
 
 
 // Function to sending data

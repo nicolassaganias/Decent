@@ -104,6 +104,7 @@ void loop() {
     Serial.print("GasPump1:" + String(gasPump1On ? "ON" : "OFF") + "\t");
     Serial.print("GasPump2:" + String(gasPump2On ? "ON" : "OFF") + "\t");
     Serial.println("");
+
     // check if the mobile app is connected or not
     if (deviceConnected) {
       switch (sentDataCount) {
@@ -162,11 +163,9 @@ void loop() {
 
     // check alarm
     if (abs(pHSensor1Data - pHSensor2Data) <= 0.1) {  // checks if ph1 and ph are the same with 0.1 tolerance
-      Serial.println("Alarm ON");
-      digitalWrite(RELAY_PIN, HIGH);
+      Serial.print(" / Alarm ON");
     } else {
-      Serial.println("Alarm OFF");
-      digitalWrite(RELAY_PIN, LOW);
+      Serial.print(" / Alarm OFF");
     }
 
     // check conditions while the mode is auto
@@ -174,7 +173,7 @@ void loop() {
 
       // liquid pump 1 (MP1) always on/off
       liquidPump1On = true;
-      digitalWrite(LIQUID_PUMP1, HIGH);
+      analogWrite(LIQUID_PUMP1, speedLP1);
       checked_time = time_s;
       pumpCharacteristic->setValue(String("p1:1").c_str());
       pumpCharacteristic->notify();
@@ -182,7 +181,7 @@ void loop() {
       //liquid pump 2(MP2) on/off according to ph
       if (pHSensor1Data > 0 && (pHSensor1Data < LOWER_PH_THRESHOLD || pHSensor1Data > UPPER_PH_THRESHOLD) && !liquidPump2On && !startCooldown) {
         liquidPump2On = true;
-        digitalWrite(LIQUID_PUMP2, HIGH);
+        analogWrite(LIQUID_PUMP2, speedLP2);
         checked_time = time_s;
         pumpCharacteristic->setValue(String("p2:1").c_str());
         pumpCharacteristic->notify();
@@ -194,7 +193,7 @@ void loop() {
           startCooldown = true;        // Start cooldown period
           cooldownStartTime = time_s;  // Store cooldown start time
           checked_time = 0;
-          digitalWrite(LIQUID_PUMP2, LOW);
+          analogWrite(LIQUID_PUMP2, 0);
           pumpCharacteristic->setValue("p2:0");
           pumpCharacteristic->notify();
         }
@@ -207,7 +206,7 @@ void loop() {
 
       // liquid pump 3 (MP3) always on/off
       liquidPump3On = true;
-      digitalWrite(LIQUID_PUMP3, HIGH);
+      analogWrite(LIQUID_PUMP3, speedLP3);
       checked_time = time_s;
       pumpCharacteristic->setValue(String("p3:1").c_str());
       pumpCharacteristic->notify();
@@ -216,45 +215,51 @@ void loop() {
       if (CH4SensorData > 0 && CH4SensorData < CH4_THRESHOLD && !gasPump1On) {
         gasPump1On = true;
         checked_time = time_s;
-        digitalWrite(GAS_PUMP1, HIGH);
+        analogWrite(GAS_PUMP1, speedGP1);
         pumpCharacteristic->setValue(String("p4:1").c_str());
         pumpCharacteristic->notify();
+      } else if (CH4SensorData > 0 && CH4SensorData > CH4_THRESHOLD && !electrovalveOn) {
+        electrovalveOn = true;
+        digitalWrite(ELECTROVALVE, HIGH);
       }
 
       if (WPSensor2Data <= 0.1 && gasPump1On) {  // if pressure = 0
         gasPump1On = false;
+        electrovalveOn = false;
         checked_time = time_s;
-        digitalWrite(GAS_PUMP1, LOW);
+        analogWrite(GAS_PUMP1, 0);
+        digitalWrite(ELECTROVALVE, LOW);
         pumpCharacteristic->setValue(String("p4:0").c_str());
         pumpCharacteristic->notify();
       }
 
       // gas pump2 (MP5) timed pump every 60s
-      if (time_m == 1) {  //time_m es tiempo en minutos
+      if (time_m == 1) {  // time_m es tiempo en minutos
         time_1m = false;
-        digitalWrite(GAS_PUMP2, !digitalRead(GAS_PUMP2));
+        speedGP2 = (speedGP2 == 0) ? 255 : 0;  // Alterna entre encendido (255) y apagado (0)
+        analogWrite(GAS_PUMP2, speedGP2);
       }
-    } else {  // if Manual Mode ON
-      liquidPump1On = false;
-      digitalWrite(LIQUID_PUMP1, LOW);
-      pumpCharacteristic->setValue(String("p1:0").c_str());
-      pumpCharacteristic->notify();
-      liquidPump2On = false;
-      digitalWrite(LIQUID_PUMP2, LOW);
-      pumpCharacteristic->setValue(String("p2:0").c_str());
-      pumpCharacteristic->notify();
-      liquidPump3On = false;
-      digitalWrite(LIQUID_PUMP3, LOW);
-      pumpCharacteristic->setValue(String("p3:0").c_str());
-      pumpCharacteristic->notify();
-      gasPump1On = false;
-      digitalWrite(GAS_PUMP1, LOW);
-      pumpCharacteristic->setValue(String("p4:0").c_str());
-      pumpCharacteristic->notify();
-      gasPump2On = false;
-      digitalWrite(GAS_PUMP2, LOW);
-      pumpCharacteristic->setValue(String("p5:0").c_str());
-      pumpCharacteristic->notify();
+
+    } else {  ////////////////////////// if Manual Mode ON /////////////////////////////
+      // manually initialize pumps
+      speedLP1 = 0;
+      speedLP2 = 0;
+      speedLP3 = 0;
+      speedGP1 = 0;
+      speedGP2 = 0;
+
+      analogWrite(GAS_PUMP1, speedGP1);
+      gasPump1On = (speedGP1 != 0);
+      analogWrite(GAS_PUMP2, speedGP2);
+      gasPump2On = (speedGP2 != 0);
+      analogWrite(LIQUID_PUMP1, speedLP1);
+      liquidPump1On = (speedLP1 != 0);
+      analogWrite(LIQUID_PUMP2, speedLP2);
+      liquidPump2On = (speedLP2 != 0);
+      analogWrite(LIQUID_PUMP3, speedLP3);
+      liquidPump3On = (speedLP3 != 0);
+
+      digitalWrite(ELECTROVALVE, LOW);
     }
   }
 }

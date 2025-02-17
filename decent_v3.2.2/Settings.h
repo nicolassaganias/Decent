@@ -7,13 +7,15 @@
 #define PH_SENSOR2_PIN 39  // pH sensor pin
 
 // liquid pump pins
-#define LIQUID_PUMP1 16 
+#define LIQUID_PUMP1 16
 #define LIQUID_PUMP2 27
 #define LIQUID_PUMP3 33
 
 // gas pump pins
 #define GAS_PUMP1 13
 #define GAS_PUMP2 14
+
+#define ELECTROVALVE 12
 
 // methane sensor pins
 #define CH4_SENSOR_TX_PIN 26
@@ -25,15 +27,12 @@
 #define CO2_SENSOR2_RX_PIN 18
 #define CO2_SENSOR2_TX_PIN 19
 
-// relay pin
-#define RELAY_PIN 2
-
 // current and voltage sensor
 #define CURRENT_SENSOR_PIN 0
 #define VOLTAGE_SENSOR_PIN 0
 
 bool calibrationMode = false;
-bool manualMode = 1;  // 0 mean auto (defualt), 1 mean manual
+bool manualMode = true;  // 0 mean auto (default), 1 mean manual
 
 int CO2Sensor1Data = 0;
 int CO2Sensor2Data = 0;
@@ -50,9 +49,9 @@ float measuredCurrent = 0.0;
 float measuredVoltage = 0.0;
 
 // Parameters
-#define LOWER_PH_THRESHOLD 6.5     // threshold
-#define UPPER_PH_THRESHOLD 9.0     // threshold
-#define CH4_THRESHOLD 95.0         // threshold
+#define LOWER_PH_THRESHOLD 6.5  // threshold
+#define UPPER_PH_THRESHOLD 9.0  // threshold
+#define CH4_THRESHOLD 95.0      // threshold
 
 
 // calibration command
@@ -67,9 +66,15 @@ bool liquidPump2On = false;
 bool liquidPump3On = false;
 bool gasPump1On = false;
 bool gasPump2On = false;
+bool electrovalveOn = false;
 //unsigned long liquidPump1StartTime = 0;
 //unsigned long liquidPump2StartTime = 0;
 //unsigned long gasPump1StartTime = 0;
+int speedGP1 = 0;
+int speedGP2 = 0;
+int speedLP1 = 0;
+int speedLP2 = 0;
+int speedLP3 = 0;
 
 String calibrationInfo = R"(
     >>> Device in the Calibration Mode <<<
@@ -101,8 +106,26 @@ void setPinsMode() {
   pinMode(LIQUID_PUMP3, OUTPUT);
   pinMode(GAS_PUMP1, OUTPUT);
   pinMode(GAS_PUMP2, OUTPUT);
-  pinMode(RELAY_PIN, OUTPUT);
+  pinMode(ELECTROVALVE, OUTPUT);
+  digitalWrite(ELECTROVALVE, LOW);
 
-  analogWrite(GAS_PUMP2,130);
- // gasPump2On = false;
+  // manually initialize pumps at the start
+  /*speedGP1 = 130;
+  speedGP2 = 130;
+  speedGP3 = 130;
+  speedLP1 = 130;
+  speedLP2 = 130;
+
+  analogWrite(GAS_PUMP1, speedGP1);
+  gasPump1On = (speedGP1 != 0);
+  analogWrite(GAS_PUMP2, speedGP2);
+  gasPump2On = (speedGP2 != 0);
+  analogWrite(LIQUID_PUMP1, speedLP1);
+  liquidPump1On = (speedLP1 != 0);
+  analogWrite(LIQUID_PUMP2, speedLP2);
+  liquidPump2On = (speedLP2 != 0);
+  analogWrite(LIQUID_PUMP3, speedLP3);
+  liquidPump3On = (speedLP3 != 0);
+
+  digitalWrite(ELECTROVALVE, LOW);*/
 }
