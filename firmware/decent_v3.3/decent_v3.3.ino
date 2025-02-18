@@ -54,7 +54,7 @@ void loop() {
     displaySensorData();
   }
 
-  // **Alternar GP2 cada 10s**
+  // **Alternar GP2 cada 60s**
   if (currentMillis - lastPumpToggleTime >= PUMP_TOGGLE_INTERVAL) {
     lastPumpToggleTime = currentMillis;
     toggleGP2();
